@@ -1,20 +1,18 @@
 <script lang="ts">
-	import dayjs from 'dayjs';
-	import "dayjs/locale/ar";
+	import Header from "./Header.svelte";
+	import {name} from "$lib/stores/name";
 
-	dayjs.locale("ar");
+	name.update((name: String) => {
+		return name +"1";
+	});
 
-	let preiod = dayjs().format("a") == "م" ? "مساء" : "صباح";
+	console.log($name);
 </script>
 
-<div class="p-16">
-	<header class="flex justify-between">
-		<div>
-			<h1 class="text-4xl mb-2"> {preiod} الخير 👋 </h1>
-			<h2 class="text-2xl text-surface-900/50"> 
-				{dayjs().format("اليوم ، dddd D MMM YYYY")} 
-			</h2>
-		</div>
-		<div class="bg-white w-32 h-14 "></div>
-	</header>
+<div class="p-16 flex flex-col gap-8">
+	<Header />
+	<div class="input-group input-group-divider flex justify-between">
+		<input class="flex-1" type="search" placeholder="عنوان المهمة" />
+		<button class="variant-filled-success">إضافة</button>
+	</div>
 </div>
