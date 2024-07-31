@@ -7,18 +7,24 @@
   } from "@skeletonlabs/skeleton";
   import dayjs from "dayjs";
   import "dayjs/locale/ar";
+  import { filter } from "$lib/stores/filter";
 
   dayjs.locale("ar");
 
   let preiod = dayjs().format("a") == "م" ? "مساء" : "صباح";
-
-  let comboboxValue: string = "جميع المهام";
 
   const popupCombobox: PopupSettings = {
     event: "click",
     target: "popupCombobox",
     placement: "bottom",
     closeQuery: ".listbox-item",
+    state: (e: Record<string, boolean>) => {
+      if (e.state) {
+        document.getElementById('arrow')?.classList.add('rotate-90');
+      } else {
+        document.getElementById('arrow')?.classList.remove('rotate-90');
+      }
+    },
   };
 </script>
 
@@ -34,9 +40,13 @@
     class="btn variant-filled-secondary w-36 px-2 h-fit py-3 justify-between"
     use:popup={popupCombobox}
   >
-    <span>{comboboxValue}</span>
+    <span>{$filter}</span>
     <span class="!m-0">
-      <svg class="w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+      <svg
+        id="arrow"
+        class="w-8 transition-all"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
         ><path
           fill="none"
           stroke="currentColor"
@@ -51,10 +61,10 @@
 
   <div class="card w-48 shadow-xl py-2" data-popup="popupCombobox">
     <ListBox rounded="rounded-none" active="variant-filled-primary">
-      <ListBoxItem bind:group={comboboxValue} name="medium" value="جميع المهام"
+      <ListBoxItem bind:group={$filter} name="medium" value="جميع المهام"
         >جميع المهام</ListBoxItem
       >
-      <ListBoxItem bind:group={comboboxValue} name="medium" value="مهام اليوم"
+      <ListBoxItem bind:group={$filter} name="medium" value="مهام اليوم"
         >مهام اليوم</ListBoxItem
       >
     </ListBox>

@@ -2,37 +2,48 @@
   import dayjs from "dayjs";
   import { tasks } from "./stores/tasks";
   import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-
+  import { scale, slide } from "svelte/transition";
+  import { filter } from "$lib/stores/filter";
   const modalStore = getModalStore();
 
   export let doneTask: boolean;
 
-function confirmDlete(task:Task){
-  const modal: ModalSettings = {
-	type: 'confirm',
-	title: 'هل تريد الحذف',
-	body: `سيتم حذف المهمة: "${task.title}"`,
-	response: (r: boolean) => {
-    if (r) {
-      tasks.update((currentTasks) => {
-        let index = $tasks.indexOf(task);
-        currentTasks.splice(index, 1)
-        return currentTasks;
-      })
+  function confirmDlete(task: Task) {
+    const modal: ModalSettings = {
+      type: "confirm",
+      title: "هل تريد الحذف",
+      body: `سيتم حذف المهمة: "${task.title}"`,
+      response: (r: boolean) => {
+        if (r) {
+          tasks.update((currentTasks) => {
+            let index = $tasks.indexOf(task);
+            currentTasks.splice(index, 1);
+            return currentTasks;
+          });
+        }
+      },
+      buttonTextCancel: "إلغاء",
+
+      buttonTextConfirm: "تأكيد",
+    };
+    modalStore.trigger(modal);
+  }
+
+  function applyFilter(filter: typeof $filter, task: Task) {
+    switch(filter) {
+      case "مهام اليوم":
+        return dayjs(task.assignedDate).unix() - dayjs().unix() <= 24 * 60 * 60;
+        case "جميع المهام":
+          default:
+            return true;
     }
-  },
-  buttonTextCancel: 'إلغاء',
-
-  buttonTextConfirm: 'تأكيد',
-};
-modalStore.trigger(modal);
-
-}
+  }
 </script>
 
 {#each $tasks as task}
-  {#if task.isDone == doneTask}
+  {#if task.isDone == doneTask && applyFilter($filter,task)}
     <li
+      transition:slide
       class="bg-secondary-500 p-2 rounded-lg flex justify-between items-center"
     >
       <div>
@@ -47,12 +58,12 @@ modalStore.trigger(modal);
         <button class="btn variant-filled-surface hover:bg-surface-700">
           {dayjs().to(dayjs(task.assignedDate))}
         </button>
-        <button 
-        on:click={() => confirmDlete(task)}
+        <button
+          on:click={() => confirmDlete(task)}
           class="btn variant-filled-surface hover:bg-surface-700 p-[0.7rem]"
         >
-          <svg 
-          class="w-5 h-5"
+          <svg
+            class="w-5 h-5"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             ><path
